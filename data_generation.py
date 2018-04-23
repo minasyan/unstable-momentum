@@ -1,11 +1,6 @@
 from sklearn import linear_model, datasets
 import numpy as np
 
-# Sources:
-#  [1] http://scikit-learn.org/stable/modules/generated/sklearn.datasets.make_friedman1.html
-#  [2] J. Friedman, “Multivariate adaptive regression splines”, The Annals of Statistics 19 (1), pages 1-67, 1991.
-#  [3] L. Breiman, “Bagging predictors”, Machine Learning 24, pages 123-140, 1996.
-
 '''
 Vanilla Linear Data Generator with random noise for Convex Problem (Linear Regression). Used sklearn.datasets.make_
   regression, which generates a random linear Regression Problem [1]
@@ -37,8 +32,10 @@ Outputs:
 '''
 def lin_gen(n_samples=10000, n_features=100, n_informative=15, bias=3.0, noise=1.0):
     #change n_samples and n_features for tarek's thing
-    X, y = datasets.make_regression(n_samples, n_features, n_informative, bias, noise)
-    print X, y
+    X, y = datasets.make_regression(n_samples=n_samples, n_features=n_features, n_informative=n_informative, bias=bias, noise=noise)
+    print (X, y)
+    print (type(X), X.shape)
+    print (type(y), y.shape)
     return X, y
 
 
@@ -79,7 +76,7 @@ def pol_gen(n_samples = 10000, n_features = 100, bias = 3.0, noise = 1.0):
 
     y = val + error
 
-    print X, y
+    print (X, y)
     return X, y
 
 '''
@@ -111,5 +108,11 @@ Outputs:
 def fried1_gen(n_samples=10000, n_features=100, noise=1.0):
     X, y = datasets.make_friedman1(n_samples, n_features, noise)
 
-    print X, y
+    print (X, y)
     return X, y
+
+
+
+
+if __name__=='__main__':
+    X,y = lin_gen(n_samples=10000, n_features=100, n_informative=15, bias=3.0, noise=1.0)
