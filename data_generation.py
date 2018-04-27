@@ -33,9 +33,6 @@ Outputs:
 def lin_gen(n_samples=10000, n_features=100, n_informative=15, bias=3.0, noise=1.0):
     #change n_samples and n_features for tarek's thing
     X, y = datasets.make_regression(n_samples=n_samples, n_features=n_features, n_informative=n_informative, bias=bias, noise=noise)
-    print (X, y)
-    print (type(X), X.shape)
-    print (type(y), y.shape)
     return X, y
 
 

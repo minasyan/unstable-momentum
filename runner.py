@@ -2,6 +2,10 @@ import torch
 from torch.autograd import Variable
 import numpy as np
 import descent
+from tqdm import tqdm
+from objectives import square_loss
+from data_generation import lin_gen, pol_gen, fried1_gen
+from matplotlib import pyplot as plt
 
 
 '''
@@ -18,20 +22,21 @@ def sgd_stability(X, y, f, epochs, alpha):
     ## Create the differring datasets for each run.
     X1, y1, X2, y2  = data_split(X,y)
     n, d = X1.shape
-    w1 = initialize(d)
+    X1, y1, X2, y2 = Variable(torch.Tensor(X1), requires_grad=True), Variable(torch.Tensor(y1), requires_grad=True),Variable(torch.Tensor(X2), requires_grad=True), Variable(torch.Tensor(y2), requires_grad=True)
+    ## Initialize parameters.
+    w1 = Variable(torch.Tensor(initialize(d)), requires_grad=True)
     w2 = w1
-    X1, y1, X2, y2, w = Variable(torch.Tensor(X1)), Variable(torch.Tensor(y1)),Variable(torch.Tensor(X2)), Variable(torch.Tensor(y2)),Variable(torch.Tensor(w))
-    loss_distance = [0 for _ in range(n)]
-    param_distance = [0 for _ in range(n)] ## We use L2-norm here
-    loss_distance[0] = abs(compute_loss(w1, X1, y1) - compute_loss(w2, X2, y2))
-    param_distance[0] = torch.norm(w1 - w2)
-    for epoch in range(1, epochs + 1):
+    loss_distance = [0 for _ in range(epochs)]
+    param_distance = [0 for _ in range(epochs)] ## We use L2-norm here
+    loss_distance[0] = torch.abs(compute_loss(w1, X1, y1, f) - compute_loss(w2, X2, y2, f)).data.numpy()
+    param_distance[0] = torch.norm(w1 - w2).data.numpy()
+    for epoch in tqdm(range(1, epochs)):
         for _ in range(n):
             index = np.random.randint(0,n)
             w1 = descent.sgd_step(w1, f, X1[index], y1[index], alpha)
             w2 = descent.sgd_step(w2, f, X2[index], y2[index], alpha)
-        loss_distance[epoch] = abs(compute_loss(w1, X1, y1) - compute_loss(w2, X2, y2))
-        param_distance[epoch] = torch.norm(w1 - w2)
+        loss_distance[epoch] = torch.abs(compute_loss(w1, X1, y1,f) - compute_loss(w2, X2, y2,f)).data.numpy()
+        param_distance[epoch] = torch.norm(w1 - w2).data.numpy()
     return loss_distance, param_distance
 
 
@@ -46,26 +51,26 @@ Input: X - feature matrix (numpy array)
        alpha - learning rate
        beta - momentum averaging rate
 '''
-def msgd_stability(X, y, f, epochs, alpha):
+def msgd_stability(X, y, f, epochs, alpha, beta):
     ## Create the differring datasets for each run.
     X1, y1, X2, y2  = data_split(X,y)
     n, d = X1.shape
-    w1 = initialize(d)
+    X1, y1, X2, y2 = Variable(torch.Tensor(X1), requires_grad=True), Variable(torch.Tensor(y1), requires_grad=True), Variable(torch.Tensor(X2), requires_grad=True), Variable(torch.Tensor(y2), requires_grad=True)
+    w1 = Variable(torch.Tensor(initialize(d)), requires_grad=True)
     w2, w1_prev, w2_prev = w1, w1, w1
-    X1, y1, X2, y2, w = Variable(torch.Tensor(X1)), Variable(torch.Tensor(y1)), Variable(torch.Tensor(X2)), Variable(torch.Tensor(y2)), Variable(torch.Tensor(w))
-    loss_distance = [0 for _ in range(n)]
-    param_distance = [0 for _ in range(n)] ## We use L2-norm here
-    loss_distance[0] = abs(compute_loss(w1, X1, y1) - compute_loss(w2, X2, y2))
-    param_distance[0] = torch.norm(w1 - w2)
-    for epoch in range(1, epochs + 1):
+    loss_distance = [0 for _ in range(epochs)]
+    param_distance = [0 for _ in range(epochs)] ## We use L2-norm here
+    loss_distance[0] = torch.abs(compute_loss(w1, X1, y1, f) - compute_loss(w2, X2, y2, f)).data.numpy()
+    param_distance[0] = torch.norm(w1 - w2).data.numpy()
+    for epoch in tqdm(range(1, epochs)):
         for _ in range(n):
             index = np.random.randint(0,n)
             new_w1 = descent.msgd_step(w1, w1_prev, f, X1[index], y1[index], alpha, beta)
             new_w2 = descent.msgd_step(w2, w2_prev, f, X2[index], y2[index], alpha, beta)
             w1_prev, w2_prev = w1, w2
             w1, w2 = new_w1, new_w2
-        loss_distance[epoch] = abs(compute_loss(w1, X1, y1) - compute_loss(w2, X2, y2))
-        param_distance[epoch] = torch.norm(w1 - w2)
+        loss_distance[epoch] = torch.abs(compute_loss(w1, X1, y1, f) - compute_loss(w2, X2, y2, f)).data.numpy()
+        param_distance[epoch] = torch.norm(w1 - w2).data.numpy()
     return loss_distance, param_distance
 
 
@@ -116,3 +121,16 @@ def compute_loss(w, X, y, f):
         total_loss += f(w, x_i, y_i)
     total_loss /= float(n)
     return total_loss
+
+
+if __name__=="__main__":
+    alpha = 0.01
+    beta = 0.01
+    epochs = 100
+    f = square_loss
+    X,y = lin_gen(n_samples=1001, n_features=100, n_informative=15, bias=3.0, noise=1.0)
+    # loss_distance, param_distance = sgd_stability(X, y, f, epochs, alpha)
+    loss_distance, param_distance = msgd_stability(X, y, f, epochs, alpha, beta)
+    epochs = [i for i in range(1,epochs + 1)]
+    plt.plot(epochs, param_distance)
+    plt.show()

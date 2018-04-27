@@ -16,7 +16,8 @@ Output: result found by SGD on the dataset
 def sgd_step(w, f, x, y, alpha):
     loss = f(w, x, y)
     loss.backward()
-    new_w = w - alpha * w.grad
+    new_w = Variable(torch.Tensor([1]), requires_grad=True)
+    new_w.data = w.data - alpha * w.grad.data
     return new_w
 
 '''
@@ -31,8 +32,9 @@ Input: w - current parameter vector
 
 Output: result found by momentum SGD on the dataset
 '''
-def msgd_step(w, w_prev, f, X, y, alpha, beta):
+def msgd_step(w, w_prev, f, x, y, alpha, beta):
     loss = f(w, x, y)
     loss.backward()
-    new_w = w - alpha * w.grad + beta * (w - w_prev)
+    new_w = Variable(torch.Tensor([1]), requires_grad=True)
+    new_w.data = w.data - alpha * w.grad.data + beta * (w.data - w_prev.data)
     return new_w
