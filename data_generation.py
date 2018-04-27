@@ -104,11 +104,32 @@ Outputs:
 '''
 def fried1_gen(n_samples=10000, n_features=100, noise=1.0):
     X, y = datasets.make_friedman1(n_samples, n_features, noise)
-
-    print (X, y)
     return X, y
 
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
 
+'''
+Generate data (X, y) according to the following model:
+
+y = sigmoid(dot(w, x) + noise)
+
+where the noise is Gaussian with mean = 0 and std = noise_std.
+
+Inputs: n_samples - number of the samples to generate
+        n_features - dimensionality of the data to be generated
+        noise_std - standard deviation of the noise injected in the data
+
+Outputs:    X - numpy array of dimension [n_samples, n_features]
+            y - numpy array of dimension [n_samples]
+'''
+def linear_prob_gen(n_samples=10000, n_features=100, noise_std=1.0):
+    # taking random w, X for now, TODO think of a better way to do this (fixed)
+    w = np.random.standard_exponential(n_features)
+    X = np.random.standard_normal((n_samples, n_features))
+    noise = np.random.normal(0, noise_std, n_samples)
+    y = sigmoid(np.dot(X, w) + noise)
+    return X, y
 
 
 if __name__=='__main__':

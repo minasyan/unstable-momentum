@@ -22,7 +22,8 @@ def sgd_stability(X, y, f, epochs, alpha):
     ## Create the differring datasets for each run.
     X1, y1, X2, y2  = data_split(X,y)
     n, d = X1.shape
-    X1, y1, X2, y2 = Variable(torch.Tensor(X1), requires_grad=True), Variable(torch.Tensor(y1), requires_grad=True),Variable(torch.Tensor(X2), requires_grad=True), Variable(torch.Tensor(y2), requires_grad=True)
+    X1, y1 = Variable(torch.Tensor(X1)), Variable(torch.Tensor(y1))
+    X2, y2 = Variable(torch.Tensor(X2)), Variable(torch.Tensor(y2))
     ## Initialize parameters.
     w1 = Variable(torch.Tensor(initialize(d)), requires_grad=True)
     w2 = w1
@@ -35,8 +36,10 @@ def sgd_stability(X, y, f, epochs, alpha):
             index = np.random.randint(0,n)
             w1 = descent.sgd_step(w1, f, X1[index], y1[index], alpha)
             w2 = descent.sgd_step(w2, f, X2[index], y2[index], alpha)
+        normw1 = torch.div(w1.data, torch.norm(w1.data))
+        normw2 = torch.div(w2.data, torch.norm(w2.data))
         loss_distance[epoch] = float(torch.abs(compute_loss(w1, X1, y1,f) - compute_loss(w2, X2, y2,f)).data)
-        param_distance[epoch] = float(torch.norm(w1 - w2).data)
+        param_distance[epoch] = float(torch.dist(normw1, normw2))
     return loss_distance, param_distance
 
 
@@ -55,7 +58,8 @@ def msgd_stability(X, y, f, epochs, alpha, beta):
     ## Create the differring datasets for each run.
     X1, y1, X2, y2  = data_split(X,y)
     n, d = X1.shape
-    X1, y1, X2, y2 = Variable(torch.Tensor(X1), requires_grad=True), Variable(torch.Tensor(y1), requires_grad=True), Variable(torch.Tensor(X2), requires_grad=True), Variable(torch.Tensor(y2), requires_grad=True)
+    X1, y1 = Variable(torch.Tensor(X1)), Variable(torch.Tensor(y1))
+    X2, y2 = Variable(torch.Tensor(X2)), Variable(torch.Tensor(y2))
     w1 = Variable(torch.Tensor(initialize(d)), requires_grad=True)
     w2, w1_prev, w2_prev = w1, w1, w1
     loss_distance = [0 for _ in range(epochs)]
@@ -69,8 +73,10 @@ def msgd_stability(X, y, f, epochs, alpha, beta):
             new_w2 = descent.msgd_step(w2, w2_prev, f, X2[index], y2[index], alpha, beta)
             w1_prev, w2_prev = w1, w2
             w1, w2 = new_w1, new_w2
+        normw1 = torch.div(w1.data, torch.norm(w1.data))
+        normw2 = torch.div(w2.data, torch.norm(w2.data))
         loss_distance[epoch] = float(torch.abs(compute_loss(w1, X1, y1, f) - compute_loss(w2, X2, y2, f)).data)
-        param_distance[epoch] = float(torch.norm(w1 - w2).data)
+        param_distance[epoch] = float(torch.dist(normw1, normw2))
     return loss_distance, param_distance
 
 
@@ -99,7 +105,7 @@ Input: d - dimension of the parameter space
 Output: a parameter vector
 '''
 def initialize(d):
-    mu, sigma = 0, 10
+    mu, sigma = 0, 1
     return np.random.normal(mu, sigma, d)
 
 
@@ -125,15 +131,17 @@ def compute_loss(w, X, y, f):
 
 if __name__=="__main__":
     alpha = 0.01
-    beta = 0.01
-    epochs = 100
+    beta = 0.005
+    epochs = 200
+    nruns = 10
     f = square_loss
     param_distance_avg = np.zeros(epochs)
-    for _ in range(10):
-        X,y = lin_gen(n_samples=1001, n_features=97, n_informative=15, bias=3.0, noise=1.0)
+    for i in range(nruns):
+        X,y = lin_gen(n_samples=1001, n_features=100, n_informative=15, bias=3.0, noise=1.0)
         loss_distance, param_distance = msgd_stability(X, y, f, epochs, alpha, beta)
         param_distance_avg += np.array(param_distance)
-    param_distance_avg /= 10.0
+        print(i, param_distance)
+    param_distance_avg /= float(nruns)
     # loss_distance, param_distance = msgd_stability(X, y, f, epochs, alpha, beta)
     epochs = [i for i in range(1,epochs + 1)]
     plt.plot(epochs, param_distance_avg)
