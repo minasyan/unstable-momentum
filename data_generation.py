@@ -38,7 +38,7 @@ def lin_gen(n_samples=10000, n_features=100, n_informative=15, bias=3.0, noise=1
 
 '''
 Polynomial data generator for Convex Problem (Linear Regression). Used the function y = X + 0.7*X^2 +0.25*X^3 to
-  generate outputs.
+  generate outputs. [5]
 
 Parameters:
   * n_samples:
@@ -80,7 +80,7 @@ def pol_gen(n_samples = 10000, n_features = 100, bias = 3.0, noise = 1.0):
 Polynomial and sine transforms data generator for Convex Problem (Linear Regression) [2][3]. Used sklearn.datasets
   .make_friedman1, which generates data from Friedman 1 Regression Model, which computes the output y according to
   the formula y(X) = 10 * sin(pi * X[:, 0] * X[:, 1]) + 20 * (X[:, 2] - 0.5) ** 2 + 10 * X[:, 3] + 5 * X[:, 4]
-  + noise * N(0, 1). [1]
+  + noise * N(0, 1). [2]
 
 Parameters:
   * n_samples:
@@ -104,33 +104,11 @@ Outputs:
 '''
 def fried1_gen(n_samples=10000, n_features=100, noise=1.0):
     X, y = datasets.make_friedman1(n_samples, n_features, noise)
+
     return X, y
 
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
 
-'''
-Generate data (X, y) according to the following model:
-
-y = sigmoid(dot(w, x) + noise)
-
-where the noise is Gaussian with mean = 0 and std = noise_std.
-
-Inputs: n_samples - number of the samples to generate
-        n_features - dimensionality of the data to be generated
-        noise_std - standard deviation of the noise injected in the data
-
-Outputs:    X - numpy array of dimension [n_samples, n_features]
-            y - numpy array of dimension [n_samples]
-'''
-def linear_prob_gen(n_samples=10000, n_features=100, noise_std=1.0):
-    # taking random w, X for now, TODO think of a better way to do this (fixed)
-    w = np.random.standard_exponential(n_features)
-    X = np.random.standard_normal((n_samples, n_features))
-    noise = np.random.normal(0, noise_std, n_samples)
-    y = sigmoid(np.dot(X, w) + noise)
-    return X, y
 
 
 if __name__=='__main__':
-    X,y = lin_gen(n_samples=10000, n_features=100, n_informative=15, bias=3.0, noise=1.0)
+    X,y = pol_gen(n_samples=10000, n_features=100, n_informative=15, bias=3.0, noise=1.0)

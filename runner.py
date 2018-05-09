@@ -131,13 +131,13 @@ def compute_loss(w, X, y, f):
 
 if __name__=="__main__":
     alpha = 0.01
-    beta = 0.005
-    epochs = 200
+    beta = 0.1
+    epochs = 100
     nruns = 10
     f = square_loss
     param_distance_avg = np.zeros(epochs)
     for i in range(nruns):
-        X,y = lin_gen(n_samples=1001, n_features=100, n_informative=15, bias=3.0, noise=1.0)
+        X,y = fried1_gen(n_samples=1000, n_features=100, noise=6.0)
         loss_distance, param_distance = msgd_stability(X, y, f, epochs, alpha, beta)
         param_distance_avg += np.array(param_distance)
         print(i, param_distance)
