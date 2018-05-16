@@ -137,7 +137,7 @@ if __name__=="__main__":
     f = square_loss
     param_distance_avg = np.zeros(epochs)
     for i in range(nruns):
-        X,y = lin_gen(n_samples=1001, n_features=100, n_informative=15, bias=3.0, noise=1.0)
+        X,y = lin_gen(n_samples=101, n_features=100, noise=10.0)
         loss_distance, param_distance = msgd_stability(X, y, f, epochs, alpha, beta)
         param_distance_avg += np.array(param_distance)
         print(i, param_distance)
