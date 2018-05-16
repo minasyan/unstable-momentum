@@ -3,8 +3,8 @@ from torch.autograd import Variable
 import numpy as np
 import descent
 from tqdm import tqdm
-from objectives import square_loss
-from data_generation import lin_gen, pol_gen, fried1_gen, linear_prob_gen
+from objectives import square_loss, square_sigmoid_loss
+from data_generation import lin_gen, pol_gen, fried1_gen
 from matplotlib import pyplot as plt
 
 
@@ -132,14 +132,14 @@ def compute_loss(w, X, y, f):
 if __name__=="__main__":
     alpha = 0.001
     beta = 0.001
-    epochs = 400
-    nruns = 10
-    f = square_loss
+    epochs = 200
+    nruns = 5
+    f = square_sigmoid_loss
     param_distance_avg_sgd = np.zeros(epochs)
     param_distance_avg_msgd = np.zeros(epochs)
     for i in range(nruns):
         # X,y = lin_gen(n_samples=101, n_features=100, n_informative=100, bias=0, noise=10.0)
-        X,y = linear_prob_gen(n_samples=101, n_features=100, noise_std=10.0)
+        X,y = lin_gen(n_samples=101, n_features=100, noise=10.0)
         # X,y = fried1_gen(n_samples=1001, n_features=100, noise=10.0)
         loss_distance, param_distance = msgd_stability(X, y, f, epochs, alpha, beta)
         param_distance_avg_msgd += np.array(param_distance)
@@ -150,7 +150,7 @@ if __name__=="__main__":
     param_distance_avg_sgd /= float(nruns)
     param_distance_avg_msgd /= float(nruns)
     # loss_distance, param_distance = sgd_stability(X, y, f, epochs, alpha, beta)
-    epochs = [i for i in range(1,epochs + 1)]
+    epochs = [i for i in range(1, epochs + 1)]
     plt.plot(epochs, param_distance_avg_sgd, 'r--', label='SGD')
     plt.plot(epochs, param_distance_avg_msgd, 'b--', label='MSGD')
     plt.legend()
