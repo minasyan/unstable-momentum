@@ -23,5 +23,5 @@ Input: w - paramater vector
 
 Output: loss on the given point.
 '''
-def square_loss(w, x, y):
+def square_sigmoid_loss(w, x, y):
     return (y - torch.sigmoid(torch.dot(w,x)))**2
