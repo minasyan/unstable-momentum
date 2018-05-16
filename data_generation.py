@@ -102,7 +102,7 @@ Outputs:
       - array of shape: [n_samples]
 
 '''
-def fried1_gen(n_samples=10000, n_features=100, noise=1.0):
+def fried1_gen(n_samples=1000, n_features=100, noise=1.0):
     X, y = datasets.make_friedman1(n_samples, n_features, noise)
     return X, y
 
