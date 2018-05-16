@@ -3,7 +3,7 @@ from torch.autograd import Variable
 import numpy as np
 import descent
 from tqdm import tqdm
-from objectives import square_loss
+from objectives import square_loss, square_sigmoid_loss
 from data_generation import lin_gen, pol_gen, fried1_gen
 from matplotlib import pyplot as plt
 
@@ -105,7 +105,7 @@ Input: d - dimension of the parameter space
 Output: a parameter vector
 '''
 def initialize(d):
-    mu, sigma = 0, 1
+    mu, sigma = 0, 0.1
     return np.random.normal(mu, sigma, d)
 
 
@@ -130,20 +130,28 @@ def compute_loss(w, X, y, f):
 
 
 if __name__=="__main__":
-    alpha = 0.01
-    beta = 0.1
-    epochs = 100
-    nruns = 10
-    f = square_loss
-    param_distance_avg = np.zeros(epochs)
+    alpha = 0.001
+    beta = 0.001
+    epochs = 200
+    nruns = 5
+    f = square_sigmoid_loss
+    param_distance_avg_sgd = np.zeros(epochs)
+    param_distance_avg_msgd = np.zeros(epochs)
     for i in range(nruns):
-        X,y = fried1_gen(n_samples=1000, n_features=100, noise=6.0)
+        # X,y = lin_gen(n_samples=101, n_features=100, n_informative=100, bias=0, noise=10.0)
+        X,y = lin_gen(n_samples=101, n_features=100, noise=10.0)
+        # X,y = fried1_gen(n_samples=1001, n_features=100, noise=10.0)
         loss_distance, param_distance = msgd_stability(X, y, f, epochs, alpha, beta)
-        param_distance_avg += np.array(param_distance)
-        print(i, param_distance)
-    param_distance_avg /= float(nruns)
-    # loss_distance, param_distance = msgd_stability(X, y, f, epochs, alpha, beta)
-    epochs = [i for i in range(1,epochs + 1)]
-    plt.plot(epochs, param_distance_avg)
+        param_distance_avg_msgd += np.array(param_distance)
+
+        loss_distance, param_distance = sgd_stability(X, y, f, epochs, alpha)
+        param_distance_avg_sgd += np.array(param_distance)
+
+    param_distance_avg_sgd /= float(nruns)
+    param_distance_avg_msgd /= float(nruns)
+    # loss_distance, param_distance = sgd_stability(X, y, f, epochs, alpha, beta)
+    epochs = [i for i in range(1, epochs + 1)]
+    plt.plot(epochs, param_distance_avg_sgd, 'r--', label='SGD')
+    plt.plot(epochs, param_distance_avg_msgd, 'b--', label='MSGD')
+    plt.legend()
     plt.show()
-    print (param_distance_avg)
