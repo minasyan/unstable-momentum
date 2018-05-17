@@ -62,6 +62,25 @@ def train(args, model, device, train_loader, optimizer, epoch, index=None):
 
         return get_params(model)
 
+def get_training_error(args, model, device, train_loader, index=None):
+    train_loss = 0
+    correct = 0
+    with torch.no_grad():
+        for batch_idx, (data, target) in enumerate(train_loader):
+            if batch_idx == index:
+                continue
+            data, target = data.to(device), target.to(device)
+            output = model(data)
+            train_loss += F.nll_loss(output, target, size_average=False).item()
+            pred = output.max(1, keepdim=True)[1]
+            correct += pred.eq(target.view_as(pred)).sum().item()
+        train_loss /= (len(train_loader.dataset) - 64)
+    print('\nTrain set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
+        train_loss, correct, (len(train_loader.dataset) - 64),
+        100. * correct / (len(train_loader.dataset) - 64)))
+    final_error = 100. * correct / (len(train_loader.dataset) - 64)
+    return final_error
+
 def test(args, model, device, test_loader):
     model.eval()
     test_loss = 0
@@ -78,6 +97,7 @@ def test(args, model, device, test_loader):
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
+    return 100. * correct / len(test_loader.dataset)
 
 
 def get_params(model):
@@ -150,6 +170,7 @@ def main():
 
     print (torch.dist(get_params(model1), get_params(model2)))
     params_dist = []
+    gen_errors = []
 
     for epoch in range(1, args.epochs + 1):
         params_1 = train(args, model1, device, train_loader, optimizer1, epoch, index=index_1)
@@ -157,14 +178,19 @@ def main():
 
         params_dist.append(torch.dist(params_1, params_2).cpu())
 
-        test(args, model1, device, test_loader)
+        test_error = test(args, model1, device, test_loader)
         test(args, model2, device, test_loader)
+
+        train_error = get_training_error(args, model1, device, train_loader, index=index_1)
+        gen_errors.append(test_error - train_error)
 
     x = [epoch for epoch in range(1, args.epochs + 1)]
 
-
+    gen_errors = torch.Tensor(gen_errors)
+    print (gen_errors)
     print (params_dist)
     torch.save(params_dist, 'final_result_dist_{}msgd_{}epochs.pt')
+    torch.save(gen_errors, 'final_result_error_{}msgd_{}epochs.pt')
     # plt.plot(x, params_dist)
     # plt.show()
 if __name__ == '__main__':
