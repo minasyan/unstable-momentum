@@ -114,7 +114,7 @@ def main():
 
     device = torch.device("cuda" if use_cuda else "cpu")
 
-    kwargs = {'num_workers': 5, 'pin_memory': True} if use_cuda else {}
+    kwargs = {'num_workers': 13, 'pin_memory': True} if use_cuda else {}
 
     train_loader = torch.utils.data.DataLoader(
         datasets.MNIST('../data', train=True, download=True,
