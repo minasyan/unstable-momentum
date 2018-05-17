@@ -25,8 +25,7 @@ train_loader = torch.utils.data.DataLoader(
                        transforms.Normalize((0.1307,), (0.3081,))
                    ])),
     batch_size=BATCH_SIZE,
-    shuffle=True,
-    **kwargs)
+    shuffle=True)
 
 test_loader = torch.utils.data.DataLoader(
     dataset = dset.MNIST('../data', train=False, transform=transforms.Compose([
@@ -34,8 +33,7 @@ test_loader = torch.utils.data.DataLoader(
                        transforms.Normalize((0.1307,), (0.3081,))
                    ])),
     batch_size=BATCH_SIZE,
-    shuffle=True,
-    **kwargs)
+    shuffle=True)
 
 
 '''Fake dataset'''
@@ -85,6 +83,7 @@ if __name__ == '__main__':
     for epoch in range(EPOCH):
         print('Epoch: ', epoch)
         for step, (x, target) in enumerate(train_loader):          # for each training step
+            print (x.shape, target.shape)
             b_x = Variable(x)
             b_y = Variable(target)
 
