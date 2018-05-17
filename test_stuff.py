@@ -61,3 +61,9 @@ plt.plot(epochs, long_dists_0_5sgd, color=(0,0.5,0.8), linestyle='--', label='MS
 plt.xlabel('Epochs')
 plt.ylabel('Normalized Euclidean distance b/w parameters')
 plt.show()
+
+
+long_errors_sgd = torch.load('final_result_error_0.0msgd_500epochs.pt').numpy()
+
+plt.plot(epochs, long_errors_sgd)
+plt.show()
