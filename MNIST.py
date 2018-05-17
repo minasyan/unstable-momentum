@@ -60,12 +60,7 @@ def train(args, model, device, train_loader, optimizer, epoch, index=None):
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.item()))
 
-        curr_parameters = []
-        for i in model.parameters():
-            curr_parameters.append(i.view(i.numel()))
-        curr_parameters = torch.cat(curr_parameters, 0)
-        curr_parameters = torch.div(curr_parameters, torch.norm(curr_parameters))
-        return curr_parameters
+        return get_params(model)
 
 def test(args, model, device, test_loader):
     model.eval()
@@ -83,6 +78,15 @@ def test(args, model, device, test_loader):
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
+
+
+def get_params(model):
+    curr_parameters = []
+    for i in model.parameters():
+        curr_parameters.append(i.view(i.numel()))
+    curr_parameters = torch.cat(curr_parameters, 0)
+    curr_parameters = torch.div(curr_parameters, torch.norm(curr_parameters))
+    return curr_parameters
 
 def main():
     # Training settings
@@ -140,9 +144,10 @@ def main():
     optimizer1 = optim.SGD(model1.parameters(), lr=args.lr, momentum=args.momentum)
 
     ## Start up second run.
-    model2 = Net2().to(device)
+    model2 = Net2().to(device);
     optimizer2 = optim.SGD(model2.parameters(), lr=args.lr, momentum=args.momentum)
 
+    print (torch.dist(get_params(model1), get_params(model2)))
     params_dist = []
 
     for epoch in range(1, args.epochs + 1):
@@ -157,7 +162,8 @@ def main():
 
     x = [epoch for epoch in range(1, args.epochs + 1)]
 
-    plt.plot(x, params_dist)
-    plot.show()
+    print (params_dist)
+    # plt.plot(x, params_dist)
+    # plt.show()
 if __name__ == '__main__':
     main()
