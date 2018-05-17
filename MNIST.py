@@ -62,27 +62,8 @@ def train(args, model, device, train_loader, optimizer, epoch, index=None):
             print('Train Epoch: {} [{}/{} ({:.0f}%)]\tLoss: {:.6f}'.format(
                 epoch, batch_idx * len(data), len(train_loader.dataset),
                 100. * batch_idx / len(train_loader), loss.item()))
-        train_acc = 100. * correct / (len(train_loader.dataset) - 64)
-        return train_acc, get_params(model)
-
-# def get_training_error(args, model, device, train_loader, index=None):
-#     train_loss = 0
-#     correct = 0
-#     with torch.no_grad():
-#         for batch_idx, (data, target) in enumerate(train_loader):
-#             if batch_idx == index:
-#                 continue
-#             data, target = data.to(device), target.to(device)
-#             output = model(data)
-#             train_loss += F.nll_loss(output, target, size_average=False).item()
-#             pred = output.max(1, keepdim=True)[1]
-#             correct += pred.eq(target.view_as(pred)).sum().item()
-#         train_loss /= (len(train_loader.dataset) - 64)
-#     print('\nTrain set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
-#         train_loss, correct, (len(train_loader.dataset) - 64),
-#         100. * correct / (len(train_loader.dataset) - 64)))
-#     final_acc = 100. * correct / (len(train_loader.dataset) - 64)
-#     return final_acc
+    train_acc = 100. * correct / (len(train_loader.dataset) - 64)
+    return train_acc, get_params(model)
 
 def test(args, model, device, test_loader):
     model.eval()
@@ -100,6 +81,7 @@ def test(args, model, device, test_loader):
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
+    print (correct)
     return 100. * correct / len(test_loader.dataset)
 
 
@@ -128,7 +110,7 @@ def main():
                         help='disables CUDA training')
     parser.add_argument('--seed', type=int, default=1, metavar='S',
                         help='random seed (default: 1)')
-    parser.add_argument('--log-interval', type=int, default=10, metavar='N',
+    parser.add_argument('--log-interval', type=int, default=500, metavar='N',
                         help='how many batches to wait before logging training status')
     args = parser.parse_args()
     use_cuda = not args.no_cuda and torch.cuda.is_available()
@@ -182,13 +164,15 @@ def main():
         params_dist.append(torch.dist(params_1, params_2).cpu())
 
         test_acc = test(args, model1, device, test_loader)
+        print (train_acc)
+        print (test_acc)
         test_loss = 1 - test_acc
         test(args, model2, device, test_loader)
 
         # train_acc = get_training_error(args, model1, device, train_loader, index=index_1)
         train_loss = 1 - train_acc
         gen_errors.append(test_loss - train_loss)
-
+        
     x = [epoch for epoch in range(1, args.epochs + 1)]
 
     gen_errors = torch.Tensor(gen_errors)

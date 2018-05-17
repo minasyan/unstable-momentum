@@ -65,5 +65,5 @@ plt.show()
 
 long_errors_sgd = torch.load('final_result_error_0.0msgd_500epochs.pt').numpy()
 
-plt.plot(epochs, long_errors_sgd)
+plt.plot(epochs, long_errors_sgd /100)
 plt.show()
