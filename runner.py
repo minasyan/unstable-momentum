@@ -3,8 +3,8 @@ from torch.autograd import Variable
 import numpy as np
 import descent
 from tqdm import tqdm
-from objectives import square_loss, square_sigmoid_loss
-from data_generation import lin_gen, pol_gen, fried1_gen
+from objectives import square_loss, square_sigmoid_loss, nonconvex_loss
+from data_generation import lin_gen, pol_gen, fried1_gen, linear_prob_gen, non_convex_prob
 from matplotlib import pyplot as plt
 
 
@@ -105,7 +105,8 @@ Input: d - dimension of the parameter space
 Output: a parameter vector
 '''
 def initialize(d):
-    mu, sigma = 0, 0.1
+    # np.random.seed(0)
+    mu, sigma = 0, 0.25
     return np.random.normal(mu, sigma, d)
 
 
@@ -133,25 +134,38 @@ if __name__=="__main__":
     alpha = 0.001
     beta = 0.001
     epochs = 200
-    nruns = 5
-    f = square_sigmoid_loss
+    nruns = 10
+    f = square_loss
+    loss_distance_avg_sgd = np.zeros(epochs)
+    loss_distance_avg_msgd = np.zeros(epochs)
     param_distance_avg_sgd = np.zeros(epochs)
     param_distance_avg_msgd = np.zeros(epochs)
     for i in range(nruns):
-        # X,y = lin_gen(n_samples=101, n_features=100, n_informative=100, bias=0, noise=10.0)
-        X,y = lin_gen(n_samples=101, n_features=100, noise=10.0)
+        X,y = lin_gen(n_samples=101, n_features=100, n_informative=100, bias=0, noise=10.0)
+        # X,y = non_convex_prob(n_samples=101, n_features=100, noise=10.0)
         # X,y = fried1_gen(n_samples=1001, n_features=100, noise=10.0)
         loss_distance, param_distance = msgd_stability(X, y, f, epochs, alpha, beta)
         param_distance_avg_msgd += np.array(param_distance)
+        loss_distance_avg_sgd += np.array(loss_distance)
 
         loss_distance, param_distance = sgd_stability(X, y, f, epochs, alpha)
         param_distance_avg_sgd += np.array(param_distance)
+        loss_distance_avg_msgd += np.array(loss_distance)
 
     param_distance_avg_sgd /= float(nruns)
     param_distance_avg_msgd /= float(nruns)
+    loss_distance_avg_sgd /= float(nruns)
+    loss_distance_avg_msgd /= float(nruns)
     # loss_distance, param_distance = sgd_stability(X, y, f, epochs, alpha, beta)
     epochs = [i for i in range(1, epochs + 1)]
     plt.plot(epochs, param_distance_avg_sgd, 'r--', label='SGD')
     plt.plot(epochs, param_distance_avg_msgd, 'b--', label='MSGD')
+    plt.title("Euclidean distance between parameters")
+    plt.legend()
+    plt.show()
+
+    plt.plot(epochs, loss_distance_avg_sgd, 'r--', label='SGD')
+    plt.plot(epochs, loss_distance_avg_msgd, 'b--', label='MSGD')
+    plt.title("Loss difference")
     plt.legend()
     plt.show()
