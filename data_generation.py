@@ -106,9 +106,6 @@ def fried1_gen(n_samples=1000, n_features=100, noise=1.0):
     X, y = datasets.make_friedman1(n_samples, n_features, noise)
     return X, y
 
-def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
 '''
 Generate data (X, y) according to the following model:
 
@@ -123,13 +120,53 @@ Inputs: n_samples - number of the samples to generate
 Outputs:    X - numpy array of dimension [n_samples, n_features]
             y - numpy array of dimension [n_samples]
 '''
-def linear_prob_gen(n_samples=10000, n_features=100, noise_std=1.0):
+def linear_prob_gen(n_samples=10000, n_features=100, noise=1.0):
     # taking random w, X for now, TODO think of a better way to do this (fixed)
     w = np.random.standard_exponential(n_features)
     X = np.random.standard_normal((n_samples, n_features))
-    noise = np.random.normal(0, noise_std, n_samples)
+    noise = np.random.normal(0, noise, n_samples)
     y = sigmoid(np.dot(X, w) + noise)
     return X, y
+
+'''
+Generate data (X, y) according to the following model:
+
+y = non_convex_fn(dot(w, x) + noise)
+
+
+where the noise is Gaussian with mean = 0 and std = noise_std
+and the non convex function is the one in the helper function
+of the same name.
+
+Inputs: n_samples - number of the samples to generate
+        n_features - dimensionality of the data to be generated
+        noise_std - standard deviation of the noise injected in the data
+
+Outputs:    X - numpy array of dimension [n_samples, n_features]
+            y - numpy array of dimension [n_samples]
+'''
+def non_convex_prob(n_samples=10000, n_features=100, noise=0.3):
+    # np.random.seed(1)
+    w = np.random.normal(loc=0, scale=0.25, size=n_features)
+    X = np.random.normal(loc=0, scale=0.25, size=(n_samples, n_features))
+    noise = np.random.normal(0, noise, n_samples)
+    y = non_convex_fn(np.dot(X, w) + noise)
+    return X, y
+
+
+
+"""
+Helper: Sigmoid function.
+"""
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+"""
+Helper: Non_convex_fn. It has two minimas that are somewhat close.
+"""
+def non_convex_fn(x):
+    return (3/2)*x**2 + np.exp(0.5-1 / (100*(x-1)**2)) - 1.0
+
 
 
 if __name__=='__main__':

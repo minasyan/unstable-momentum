@@ -1,3 +1,6 @@
 venv/
+Desktop/
+final_result_dist*
+final_result_error*
 __pycache__/
 *.pyc
