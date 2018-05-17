@@ -136,7 +136,6 @@ def main():
                        ])),
         batch_size=args.test_batch_size, shuffle=False, **kwargs)
 
-    print(len(train_loader))
     index_1 = np.random.randint(0, len(train_loader))
     index_2 = np.random.randint(0, len(train_loader))
     while index_2 == index_1:
@@ -155,8 +154,7 @@ def main():
 
     params_dist = []
     gen_errors = []
-
-    params_dist.append(torch.dist(get_params(model1), get_params(model2)))
+    params_dist.append(torch.dist(get_params(model1), get_params(model2)).cpu())
     for epoch in range(1, args.epochs + 1):
         train_acc, params_1 = train(args, model1, device, train_loader, optimizer1, epoch, index=index_1)
         no_use, params_2 = train(args, model2, device, train_loader, optimizer2, epoch, index=index_2)
