@@ -164,7 +164,7 @@ def main():
 
 
     print (params_dist)
-    torch.save(params_dist, 'final_result_dist.pt')
+    torch.save(params_dist, 'final_result_dist_{}msgd_{}epochs.pt')
     # plt.plot(x, params_dist)
     # plt.show()
 if __name__ == '__main__':

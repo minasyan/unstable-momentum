@@ -34,8 +34,30 @@ def visualize_y_locations(n_samples=10000, n_features=1, noise=1.0):
 # visualize_y_locations(noise=1.0)
 
 
-dists = torch.load('final_result_dist.pt')
-epochs = [i for i in range(len(dists))]
+dists_sgd = torch.load('final_result_dist.pt')
+dists_0_5msgd = torch.load('final_result_dist_msgd.pt')
+dists_0_3msgd = torch.load('final_result_dist_0.3msgd.pt')
+dists_0_7msgd = torch.load('final_result_dist_0.7msgd.pt')
 
-plt.plot(epochs, dists)
+epochs = [i for i in range(len(dists_sgd))]
+
+plt.plot(epochs, dists_sgd, color='r', linestyle='--', label='SGD')
+plt.plot(epochs, dists_0_3msgd, color=(0,0.5,0.8), linestyle='--', label='MSGD 0.3')
+plt.plot(epochs, dists_0_5msgd, color=(0,0.3,0.9), linestyle='--', label='MSGD 0.5')
+plt.plot(epochs, dists_0_7msgd, color=(0,0,1), linestyle='--', label='MSGD 0.7')
+plt.xlabel('Epochs')
+plt.ylabel('Normalized Euclidean distance b/w parameters')
+plt.legend()
+plt.show()
+
+
+
+long_dists_sgd = torch.load('final_result_dist_0.0msgd_500epochs.pt')
+long_dists_0_5sgd = torch.load('final_result_dist_0.5msgd_500epochs.pt')
+
+epochs = [i for i in range(len(long_dists_sgd))]
+plt.plot(epochs, long_dists_sgd, color='r', linestyle='--', label='SGD')
+plt.plot(epochs, long_dists_0_5sgd, color=(0,0.5,0.8), linestyle='--', label='MSGD 0.5')
+plt.xlabel('Epochs')
+plt.ylabel('Normalized Euclidean distance b/w parameters')
 plt.show()
