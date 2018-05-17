@@ -189,8 +189,8 @@ def main():
     gen_errors = torch.Tensor(gen_errors)
     print (gen_errors)
     print (params_dist)
-    torch.save(params_dist, 'final_result_dist_{}msgd_{}epochs.pt')
-    torch.save(gen_errors, 'final_result_error_{}msgd_{}epochs.pt')
+    torch.save(params_dist, 'final_result_dist_{}msgd_{}epochs.pt'.format(args.momentum, args.epochs))
+    torch.save(gen_errors, 'final_result_error_{}msgd_{}epochs.pt'.format(args.momentum, args.epochs))
     # plt.plot(x, params_dist)
     # plt.show()
 if __name__ == '__main__':
