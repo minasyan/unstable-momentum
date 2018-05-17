@@ -163,6 +163,7 @@ def main():
     x = [epoch for epoch in range(1, args.epochs + 1)]
 
     print (params_dist)
+    torch.save(params_dist, 'final_result_dist.pt')
     # plt.plot(x, params_dist)
     # plt.show()
 if __name__ == '__main__':
