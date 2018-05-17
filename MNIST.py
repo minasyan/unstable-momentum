@@ -81,7 +81,6 @@ def test(args, model, device, test_loader):
     print('\nTest set: Average loss: {:.4f}, Accuracy: {}/{} ({:.0f}%)\n'.format(
         test_loss, correct, len(test_loader.dataset),
         100. * correct / len(test_loader.dataset)))
-    print (correct)
     return 100. * correct / len(test_loader.dataset)
 
 
@@ -159,17 +158,14 @@ def main():
         train_acc, params_1 = train(args, model1, device, train_loader, optimizer1, epoch, index=index_1)
         no_use, params_2 = train(args, model2, device, train_loader, optimizer2, epoch, index=index_2)
 
-        params_dist.append(torch.dist(params_1, params_2).cpu())
-
         test_acc = test(args, model1, device, test_loader)
-        print (train_acc)
-        print (test_acc)
-        test_loss = 1 - test_acc
         test(args, model2, device, test_loader)
 
-        # train_acc = get_training_error(args, model1, device, train_loader, index=index_1)
-        train_loss = 1 - train_acc
-        gen_errors.append(test_loss - train_loss)
+        test_loss = 100 - test_acc
+        train_loss = 100 - train_acc
+
+        params_dist.append(torch.dist(params_1, params_2).cpu())
+        gen_errors.append(np.absolute(test_loss - train_loss))
 
     x = [epoch for epoch in range(1, args.epochs + 1)]
 
