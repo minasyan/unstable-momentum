@@ -67,3 +67,15 @@ long_errors_sgd = torch.load('final_result_error_0.0msgd_500epochs.pt').numpy()
 
 plt.plot(epochs, long_errors_sgd /100)
 plt.show()
+
+
+
+##### NEW STUFF
+short_dists_sgd = torch.load('final_result_dist_0.0msgd_10epochs.pt')
+short_dists_0_5sgd = torch.load('final_result_dist_0.5msgd_10epochs.pt')
+epochs = [i for i in range(len(short_dists_sgd))]
+plt.plot(epochs, short_dists_sgd, color='r', linestyle='--', label='SGD')
+plt.plot(epochs, short_dists_0_5sgd, color=(0,0.5,0.8), linestyle='--', label='MSGD 0.5')
+plt.xlabel('Epochs')
+plt.ylabel('Normalized Euclidean distance b/w parameters')
+plt.show()

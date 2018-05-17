@@ -153,10 +153,10 @@ def main():
     optimizer2 = optim.SGD(model2.parameters(), lr=args.lr, momentum=args.momentum)
     model2.load_state_dict(torch.load('init_params.pt'))
 
-    print (torch.dist(get_params(model1), get_params(model2)))
     params_dist = []
     gen_errors = []
 
+    params_dist.append(torch.dist(get_params(model1), get_params(model2)))
     for epoch in range(1, args.epochs + 1):
         train_acc, params_1 = train(args, model1, device, train_loader, optimizer1, epoch, index=index_1)
         no_use, params_2 = train(args, model2, device, train_loader, optimizer2, epoch, index=index_2)
@@ -172,7 +172,7 @@ def main():
         # train_acc = get_training_error(args, model1, device, train_loader, index=index_1)
         train_loss = 1 - train_acc
         gen_errors.append(test_loss - train_loss)
-        
+
     x = [epoch for epoch in range(1, args.epochs + 1)]
 
     gen_errors = torch.Tensor(gen_errors)
