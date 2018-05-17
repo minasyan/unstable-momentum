@@ -63,9 +63,9 @@ plt.ylabel('Normalized Euclidean distance b/w parameters')
 plt.show()
 
 
-long_errors_sgd = torch.load('final_result_error_0.0msgd_500epochs.pt').numpy()
-
-plt.plot(epochs, long_errors_sgd /100)
+long_errors_sgd = torch.load('final_result_error_0.5msgd_10epochs.pt').numpy()
+epochs = [i for i in range(len(long_errors_sgd))]
+plt.plot(epochs, long_errors_sgd)
 plt.show()
 
 
@@ -79,7 +79,7 @@ epochs = [i for i in range(len(short_dists_sgd))]
 plt.plot(epochs, short_dists_sgd, color='r', linestyle='--', label='SGD')
 plt.plot(epochs, short_dists_0_3sgd, color=(0,0.5,0.8), linestyle='--', label='MSGD 0.3')
 plt.plot(epochs, short_dists_0_5sgd, color=(0,0.3,0.9), linestyle='--', label='MSGD 0.5')
-plt.plot(epochs, short_dists_0_7sgd, color=(0,0,1), linestyle='--', label='MSGD 0.7')
+plt.plot(epochs, short_dists_0_7sgd, color=(0,0.6,0.9), linestyle='--', label='MSGD 0.7')
 plt.xlabel('Epochs')
 plt.ylabel('Normalized Euclidean distance b/w parameters')
 plt.legend()
@@ -87,9 +87,15 @@ plt.show()
 
 shor_error_sgd = torch.load('final_result_error_0.0msgd_50epochs.pt').numpy()
 shor_error_0_5sgd = torch.load('final_result_error_0.5msgd_50epochs.pt').numpy()
-plt.plot(epochs[1:], shor_error_sgd, color='r', linestyle='--', label='SGD')
-plt.plot(epochs[1:], shor_error_0_5sgd, color=(0,0.5,0.8), linestyle='--', label='MSGD 0.5')
+shor_error_0_3sgd = torch.load('final_result_error_0.3msgd_50epochs.pt').numpy()
+shor_error_0_7sgd = torch.load('final_result_error_0.7msgd_50epochs.pt').numpy()
+plt.plot(epochs[1:], shor_error_sgd/10, color='r', linestyle='--', label='SGD')
+plt.plot(epochs[1:], shor_error_0_3sgd/10, color=(0,0.5,0.8), linestyle='--', label='MSGD 0.3')
+plt.plot(epochs[1:], shor_error_0_5sgd/10, color=(0,0.3,0.9), linestyle='--', label='MSGD 0.5')
+plt.plot(epochs[1:], shor_error_0_7sgd/10, color=(0,0.6,0.9), linestyle='--', label='MSGD 0.7')
+# plt.ylim(ymax=0.5)
 plt.xlabel('Epochs')
 plt.ylabel('Generalization error')
+
 plt.legend()
 plt.show()
