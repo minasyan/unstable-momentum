@@ -114,7 +114,7 @@ def main():
 
     device = torch.device("cuda" if use_cuda else "cpu")
 
-    kwargs = {'num_workers': 1, 'pin_memory': True} if use_cuda else {}
+    kwargs = {'num_workers': 5, 'pin_memory': True} if use_cuda else {}
 
     train_loader = torch.utils.data.DataLoader(
         datasets.MNIST('../data', train=True, download=True,
@@ -131,7 +131,7 @@ def main():
                        ])),
         batch_size=args.test_batch_size, shuffle=False, **kwargs)
 
-
+    print(len(train_loader))
     index_1 = np.random.randint(0, len(train_loader))
     index_2 = np.random.randint(0, len(train_loader))
     while index_2 == index_1:
@@ -142,10 +142,11 @@ def main():
     ## Start up first run.
     model1 = Net1().to(device)
     optimizer1 = optim.SGD(model1.parameters(), lr=args.lr, momentum=args.momentum)
-
+    torch.save(model1.state_dict(), 'init_params.pt')
     ## Start up second run.
     model2 = Net2().to(device);
     optimizer2 = optim.SGD(model2.parameters(), lr=args.lr, momentum=args.momentum)
+    model2.load_state_dict(torch.load('init_params.pt'))
 
     print (torch.dist(get_params(model1), get_params(model2)))
     params_dist = []
@@ -155,7 +156,6 @@ def main():
         params_2 = train(args, model2, device, train_loader, optimizer2, epoch, index=index_2)
 
         params_dist.append(torch.dist(params_1, params_2))
-
 
         test(args, model1, device, test_loader)
         test(args, model2, device, test_loader)
