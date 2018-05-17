@@ -155,12 +155,13 @@ def main():
         params_1 = train(args, model1, device, train_loader, optimizer1, epoch, index=index_1)
         params_2 = train(args, model2, device, train_loader, optimizer2, epoch, index=index_2)
 
-        params_dist.append(torch.dist(params_1, params_2))
+        params_dist.append(torch.dist(params_1, params_2).cpu())
 
         test(args, model1, device, test_loader)
         test(args, model2, device, test_loader)
 
     x = [epoch for epoch in range(1, args.epochs + 1)]
+
 
     print (params_dist)
     torch.save(params_dist, 'final_result_dist.pt')

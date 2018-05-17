@@ -31,8 +31,11 @@ def visualize_y_locations(n_samples=10000, n_features=1, noise=1.0):
     # losses = []
     # for w in ws:
     #     dot = np.dot(X,w)
+# visualize_y_locations(noise=1.0)
 
 
+dists = torch.load('final_result_dist.pt')
+epochs = [i for i in range(len(dists))]
 
-
-visualize_y_locations(noise=1.0)
+plt.plot(epochs, dists)
+plt.show()
