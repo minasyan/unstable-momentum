@@ -159,7 +159,6 @@ def main():
         no_use, params_2 = train(args, model2, device, train_loader, optimizer2, epoch, index=index_2)
 
         test_acc = test(args, model1, device, test_loader)
-        train_acc = test(args, model1, device, train_loader)
         test(args, model2, device, test_loader)
 
         test_loss = 100 - test_acc
