@@ -3,7 +3,7 @@ from torch.autograd import Variable
 import numpy as np
 import descent
 from tqdm import tqdm
-from objectives import square_loss, square_sigmoid_loss, nonconvex_loss
+from objectives import square_loss, square_sigmoid_loss, nonconvex_loss, convex_loss
 from data_generation import lin_gen, pol_gen, fried1_gen, linear_prob_gen, non_convex_prob
 from matplotlib import pyplot as plt
 
@@ -29,18 +29,19 @@ def sgd_stability(X, y, f, epochs, alpha):
     w2 = w1
     loss_distance = [0 for _ in range(epochs)]
     param_distance = [0 for _ in range(epochs)] ## We use L2-norm here
-    loss_distance[0] = float(torch.abs(compute_loss(w1, X1, y1, f) - compute_loss(w2, X2, y2, f)).data)
+    loss_distance[0] = float(compute_loss(w2, X2, y2, f).data)
     param_distance[0] = float(torch.norm(w1 - w2).data)
+    indices = np.random.permutation(n)
     for epoch in tqdm(range(1, epochs)):
-        for _ in range(n):
-            index = np.random.randint(0,n)
+        for i in range(n):
+            index = indices[i]
             w1 = descent.sgd_step(w1, f, X1[index], y1[index], alpha)
             w2 = descent.sgd_step(w2, f, X2[index], y2[index], alpha)
         normw1 = torch.div(w1.data, torch.norm(w1.data))
         normw2 = torch.div(w2.data, torch.norm(w2.data))
-        loss_distance[epoch] = float(torch.abs(compute_loss(w1, X1, y1,f) - compute_loss(w2, X2, y2,f)).data)
+        loss_distance[epoch] = float(compute_loss(w2, X2, y2,f).data)
         param_distance[epoch] = float(torch.dist(normw1, normw2))
-    return loss_distance, param_distance
+    return loss_distance[5:], param_distance[5:]
 
 
 '''
@@ -64,20 +65,21 @@ def msgd_stability(X, y, f, epochs, alpha, beta):
     w2, w1_prev, w2_prev = w1, w1, w1
     loss_distance = [0 for _ in range(epochs)]
     param_distance = [0 for _ in range(epochs)] ## We use L2-norm here
-    loss_distance[0] = float(torch.abs(compute_loss(w1, X1, y1, f) - compute_loss(w2, X2, y2, f)).data)
+    loss_distance[0] = float(compute_loss(w2, X2, y2, f).data)
     param_distance[0] = float(torch.norm(w1 - w2).data)
+    indices = np.random.permutation(n)
     for epoch in tqdm(range(1, epochs)):
-        for _ in range(n):
-            index = np.random.randint(0,n)
+        for i in range(n):
+            index = indices[i]
             new_w1 = descent.msgd_step(w1, w1_prev, f, X1[index], y1[index], alpha, beta)
             new_w2 = descent.msgd_step(w2, w2_prev, f, X2[index], y2[index], alpha, beta)
             w1_prev, w2_prev = w1, w2
             w1, w2 = new_w1, new_w2
         normw1 = torch.div(w1.data, torch.norm(w1.data))
         normw2 = torch.div(w2.data, torch.norm(w2.data))
-        loss_distance[epoch] = float(torch.abs(compute_loss(w1, X1, y1, f) - compute_loss(w2, X2, y2, f)).data)
+        loss_distance[epoch] = float(compute_loss(w2, X2, y2, f).data)
         param_distance[epoch] = float(torch.dist(normw1, normw2))
-    return loss_distance, param_distance
+    return loss_distance[5:], param_distance[5:]
 
 
 
@@ -159,12 +161,19 @@ if __name__=="__main__":
     loss_distance_avg_sgd /= float(nruns)
     loss_distance_avg_msgd /= float(nruns)
     # loss_distance, param_distance = sgd_stability(X, y, f, epochs, alpha, beta)
-    epochs = [i for i in range(1, epochs + 1)]
+    param_distance_avg_sgd = np.loadtxt("sgd_param_convex.csv", delimiter=",")
+    param_distance_avg_msgd = np.loadtxt("msgd_param_convex.csv", delimiter=",")
+    loss_distance_avg_sgd = np.loadtxt("sgd_loss_convex.csv", delimiter=",")
+    loss_distance_avg_msgd = np.loadtxt("msgd_loss_convex.csv", delimiter=",")
+    epochs = 200
+    epochs = [i for i in range(5, epochs)]
     plt.plot(epochs, param_distance_avg_sgd, 'r--', label='SGD')
     plt.plot(epochs, param_distance_avg_msgd, 'b--', label='MSGD')
     plt.xlabel("Number of epochs")
     plt.ylabel("Euclidean distance between parameters")
     plt.legend()
+    plt.xlabel("Number of epochs")
+    plt.ylabel("Normalized euclidean distance btw parameters")
     plt.show()
 
     plt.plot(epochs, loss_distance_avg_sgd, 'r--', label='SGD')
@@ -172,4 +181,6 @@ if __name__=="__main__":
     plt.xlabel("Number of epochs")
     plt.ylabel("Objective loss")
     plt.legend()
+    plt.xlabel("Number of epochs")
+    plt.ylabel("Objective loss")
     plt.show()
