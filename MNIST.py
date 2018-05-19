@@ -176,5 +176,6 @@ def main():
     torch.save(gen_errors, 'final_result_error_{}msgd_{}epochs.pt'.format(args.momentum, args.epochs))
     # plt.plot(x, params_dist)
     # plt.show()
+
 if __name__ == '__main__':
     main()
