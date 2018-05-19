@@ -92,6 +92,7 @@ Ouput: the two differing by 1 datasets X1,y1 and X2,y2
 def data_split(X,y):
     assert len(X) == len(y)
     n = len(X)
+    print(X[n-1], y[n-1])
     X1, y1 = np.delete(X, n-1, 0), np.delete(y, n-1, 0)
     X2, y2 = np.delete(X, n-1, 0), np.delete(y, n-1, 0)
     index = np.random.randint(0, n-1)
@@ -133,35 +134,32 @@ def compute_loss(w, X, y, f):
 
 
 if __name__=="__main__":
-    # alpha = 0.001
-    # beta = 0.001
-    # epochs = 200
-    # nruns = 10
-    # f = square_loss
-    # loss_distance_avg_sgd = np.zeros(epochs-5)
-    # loss_distance_avg_msgd = np.zeros(epochs-5)
-    # param_distance_avg_sgd = np.zeros(epochs-5)
-    # param_distance_avg_msgd = np.zeros(epochs-5)
-    # for i in range(nruns):
-    #     X,y = lin_gen(n_samples=101, n_features=20, n_informative=20, bias=0, noise=10.0)
-    #     # X,y = non_convex_prob(n_samples=101, n_features=100, noise=10.0)
-    #     # X,y = fried1_gen(n_samples=1001, n_features=100, noise=10.0)
-    #     loss_distance, param_distance = msgd_stability(X, y, f, epochs, alpha, beta)
-    #     param_distance_avg_msgd += np.array(param_distance)
-    #     loss_distance_avg_sgd += np.array(loss_distance)
-    #
-    #     loss_distance, param_distance = sgd_stability(X, y, f, epochs, alpha)
-    #     param_distance_avg_sgd += np.array(param_distance)
-    #     loss_distance_avg_msgd += np.array(loss_distance)
-    #
-    # param_distance_avg_sgd /= float(nruns)
-    # param_distance_avg_msgd /= float(nruns)
-    # loss_distance_avg_sgd /= float(nruns)
-    # loss_distance_avg_msgd /= float(nruns)
-    # np.savetxt("sgd_param_convex.csv", param_distance_avg_sgd, delimiter=",")
-    # np.savetxt("msgd_param_convex.csv", param_distance_avg_msgd, delimiter=",")
-    # np.savetxt("sgd_loss_convex.csv", loss_distance_avg_sgd, delimiter=",")
-    # np.savetxt("msgd_loss_convex.csv", loss_distance_avg_msgd, delimiter=",")
+    alpha = 0.001
+    beta = 0.001
+    epochs = 200
+    nruns = 10
+    f = nonconvex_loss
+    loss_distance_avg_sgd = np.zeros(epochs)
+    loss_distance_avg_msgd = np.zeros(epochs)
+    param_distance_avg_sgd = np.zeros(epochs)
+    param_distance_avg_msgd = np.zeros(epochs)
+    for i in range(nruns):
+        # X,y = lin_gen(n_samples=101, n_features=100, n_informative=100, bias=0, noise=10.0)
+        X,y = non_convex_prob(n_samples=101, n_features=20, noise=0.3)
+        # X,y = fried1_gen(n_samples=1001, n_features=100, noise=10.0)
+        loss_distance, param_distance = msgd_stability(X, y, f, epochs, alpha, beta)
+        param_distance_avg_msgd += np.array(param_distance)
+        loss_distance_avg_sgd += np.array(loss_distance)
+
+        loss_distance, param_distance = sgd_stability(X, y, f, epochs, alpha)
+        param_distance_avg_sgd += np.array(param_distance)
+        loss_distance_avg_msgd += np.array(loss_distance)
+
+
+    param_distance_avg_sgd /= float(nruns)
+    param_distance_avg_msgd /= float(nruns)
+    loss_distance_avg_sgd /= float(nruns)
+    loss_distance_avg_msgd /= float(nruns)
     # loss_distance, param_distance = sgd_stability(X, y, f, epochs, alpha, beta)
     param_distance_avg_sgd = np.loadtxt("sgd_param_convex.csv", delimiter=",")
     param_distance_avg_msgd = np.loadtxt("msgd_param_convex.csv", delimiter=",")
@@ -171,15 +169,17 @@ if __name__=="__main__":
     epochs = [i for i in range(5, epochs)]
     plt.plot(epochs, param_distance_avg_sgd, 'r--', label='SGD')
     plt.plot(epochs, param_distance_avg_msgd, 'b--', label='MSGD')
-    plt.title("Euclidean distance between parameters")
+    plt.xlabel("Number of epochs")
+    plt.ylabel("Euclidean distance between parameters")
     plt.legend()
     plt.xlabel("Number of epochs")
     plt.ylabel("Normalized euclidean distance btw parameters")
     plt.show()
 
-    plt.plot(epochs[50:], loss_distance_avg_sgd[50:], 'r--', label='SGD')
-    plt.plot(epochs[50:], loss_distance_avg_msgd[50:], 'b--', label='MSGD')
-    plt.title("Objective loss")
+    plt.plot(epochs, loss_distance_avg_sgd, 'r--', label='SGD')
+    plt.plot(epochs, loss_distance_avg_msgd, 'b--', label='MSGD')
+    plt.xlabel("Number of epochs")
+    plt.ylabel("Objective loss")
     plt.legend()
     plt.xlabel("Number of epochs")
     plt.ylabel("Objective loss")
