@@ -151,6 +151,7 @@ def non_convex_prob(n_samples=10000, n_features=100, noise=0.3):
     X = np.random.normal(loc=0, scale=0.25, size=(n_samples, n_features))
     noise = np.random.normal(0, noise, n_samples)
     y = non_convex_fn(np.dot(X, w) + noise)
+    print(max(y), min(y), np.mean(y), np.std(y))
     return X, y
 
 

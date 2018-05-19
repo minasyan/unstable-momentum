@@ -41,5 +41,5 @@ Output: loss on the given point.
 def nonconvex_loss(w, x, y):
     ## Has to match what is in data generation.
     dot = torch.dot(w,x)
-    inter = 1.5 * ((dot)**2) + torch.exp(0.5 - 1 / (100 * (dot - 1)**2)) - 1.0
+    inter = (3/2) * ((dot)**2) + torch.exp(0.5 - 1 / (100 * (dot - 1)**2)) - 1.0
     return inter
